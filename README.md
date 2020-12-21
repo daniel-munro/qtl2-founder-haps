@@ -16,23 +16,25 @@ Currently it works only for HS rats at around generation 90. If you would like e
 
 ## Usage
 
-  usage: qtl2-founder-haps.py [-h] [--snps SNPS] [--gmap-dir GMAP_DIR] [--working-dir WORKING_DIR] [--founder-pairs] [--cores CORES] individuals founders out
-  
-  Wrapper for R/qtl2 to calculate founder haplotype probabilities
-  
-  positional arguments:
-    individuals           path to VCF file for individuals
-    founders              path to VCF file for founder strains
-    out                   Name of 3D array output file (*.rds, serialized R object)
-  
-  optional arguments:
-    -h, --help            show this help message and exit
-    --snps SNPS, -s SNPS  File of SNP IDs to subset VCFs (e.g. to include observed and not imputed SNPs)
-    --gmap-dir GMAP_DIR   Directory containing genetic mapping files
-    --working-dir WORKING_DIR
-                          Name of directory to write qtl2 input files
-    --founder-pairs       Output probabilities per founder pair instead of collapsing to per-founder
-    --cores CORES         Number of cores to use when calculating probabilities
+```
+usage: qtl2-founder-haps.py [-h] [--snps SNPS] [--gmap-dir GMAP_DIR] [--working-dir WORKING_DIR] [--founder-pairs] [--cores CORES] individuals founders out
+ 
+Wrapper for R/qtl2 to calculate founder haplotype probabilities
+ 
+positional arguments:
+  individuals           path to VCF file for individuals
+  founders              path to VCF file for founder strains
+  out                   Name of 3D array output file (*.rds, serialized R object)
+ 
+optional arguments:
+  -h, --help            show this help message and exit
+  --snps SNPS, -s SNPS  File of SNP IDs to subset VCFs (e.g. to include observed and not imputed SNPs)
+  --gmap-dir GMAP_DIR   Directory containing genetic mapping files
+  --working-dir WORKING_DIR
+                        Name of directory to write qtl2 input files
+  --founder-pairs       Output probabilities per founder pair instead of collapsing to per-founder
+  --cores CORES         Number of cores to use when calculating probabilities
+```
 
 ## TODO
 
