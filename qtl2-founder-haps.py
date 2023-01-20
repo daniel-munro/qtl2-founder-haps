@@ -16,7 +16,7 @@ def genotype_code(gt: tuple, founder: bool = False) -> str:
     elif gt[0] > 0 and gt[1] > 0:
         return "B"
     else:
-        raise ValueError("GT not recognized: {}".format(gt))
+        raise ValueError(f"GT not recognized: {gt}")
 
 
 def genetic_pos(chrmap: pd.DataFrame, pos: int) -> float:
@@ -43,7 +43,7 @@ def make_qtl_inputs(args):
 
     maps = {}
     for chrom in range(1, 21):
-        filename = os.path.join(args.gmap_dir, "MAP4chr{}.txt.gz".format(chrom))
+        filename = os.path.join(args.gmap_dir, f"MAP4chr{chrom}.txt.gz")
         maps[chrom] = pd.read_table(filename, sep=" ", names=["pos", "ratio", "cm"])
 
     vcf = pysam.VariantFile(args.individuals)
@@ -52,7 +52,7 @@ def make_qtl_inputs(args):
     refs = {}
     ID_list = []
     for rec in vcf.fetch():
-        ID = rec.id if rec.id is not None else "{}:{}".format(rec.contig, rec.pos)
+        ID = rec.id if rec.id is not None else f"{rec.contig}:{rec.pos}"
         if IDs is None or ID in IDs:
             gt = [rec.samples[sample]["GT"] for sample in samples]
             labels = [genotype_code(g, founder=False) for g in gt]
@@ -70,13 +70,12 @@ def make_qtl_inputs(args):
     # remove = set()
     ID_list = []
     for rec in vcf.fetch():
-        ID = rec.id if rec.id is not None else "{}:{}".format(rec.contig, rec.pos)
+        ID = rec.id if rec.id is not None else f"{rec.contig}:{rec.pos}"
         if ID in IDs:
             gt = [rec.samples[strain]["GT"] for strain in strains]
             labels = [genotype_code(g, founder=True) for g in gt]
             # assert rec.ref == refs[ID]
             if rec.ref != refs[ID]:
-                # print("Reference mismatch: {} {} vs. {}".format(ID, rec.ref, refs[ID]))
                 ref_mismatch += 1
                 # remove.add(ID)
                 # del genos[ID]
@@ -87,34 +86,34 @@ def make_qtl_inputs(args):
 
 
     if ref_mismatch > 0:
-        print("{} SNPs removed due to reference mismatch.".format(ref_mismatch))
+        print(f"{ref_mismatch} SNPs removed due to reference mismatch.")
         # ID_list = [ID for ID in ID_list if ID not in remove]
 
     if not os.path.exists(args.working_dir):
         os.makedirs(args.working_dir)
     with open(os.path.join(args.working_dir, "geno.csv"), "w") as out:
-        out.write("id,{}\n".format(",".join(samples)))
+        out.write(f"id,{','.join(samples)}\n")
         for ID in ID_list:
-            out.write("{},{}\n".format(ID, ",".join(genos[ID])))
+            out.write(f"{ID},{','.join(genos[ID])}\n")
 
     with open(os.path.join(args.working_dir, "founder_geno.csv"), "w") as out:
-        out.write("id,{}\n".format(",".join(strains)))
+        out.write(f"id,{','.join(strains)}\n")
         for ID in ID_list:
-            out.write("{},{}\n".format(ID, ",".join(founder_genos[ID])))
+            out.write(f"{ID},{','.join(founder_genos[ID])}\n")
 
     with open(os.path.join(args.working_dir, "pmap.csv"), "w") as out:
         out.write("marker,chr,pos\n")
         for ID in ID_list:
             chrom, pos = tuple(ID.replace("chr", "").split(":"))
             pos = int(pos) / 1e6  # Units are Mbp.
-            out.write("{},{},{}\n".format(ID, chrom, pos))
+            out.write(f"{ID},{chrom},{pos}\n")
 
     with open(os.path.join(args.working_dir, "gmap.csv"), "w") as out:
         out.write("marker,chr,pos\n")
         for ID in ID_list:
             chrom, pos = tuple(ID.replace("chr", "").split(":"))
             gpos = genetic_pos(maps[int(chrom)], int(pos))
-            out.write("{},{},{}\n".format(ID, chrom, round(gpos, 6)))
+            out.write(f"{ID},{chrom},{round(gpos, 6)}\n")
 
     with open(os.path.join(args.working_dir, "covar.csv"), "w") as out:
         out.write("id,generations\n")
