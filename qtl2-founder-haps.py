@@ -55,6 +55,8 @@ def make_qtl_inputs(args):
         ID = rec.id if rec.id is not None else f"{rec.contig}:{rec.pos}"
         if IDs is None or ID in IDs:
             gt = [rec.samples[sample]["GT"] for sample in samples]
+            if args.haplotype in {1, 2}:
+                gt = [(g[args.haplotype - 1], g[args.haplotype - 1]) for g in gt]
             labels = [genotype_code(g, founder=False) for g in gt]
             genos[ID] = labels
             refs[ID] = rec.ref
@@ -152,7 +154,8 @@ p.add_argument("--gmap-dir", default=gmaps, help="Directory containing genetic m
 p.add_argument("--working-dir", default="tmp-qtl2-founder-haps", help="Name of directory to write qtl2 input files")
 # p.add_argument("--save-interm", action="store_true", help="With this flag, qtl2 input files will be saved")
 p.add_argument("--founder-pairs", action="store_true", help="Output probabilities per founder pair instead of collapsing to per-founder")
-p.add_argument("--cores", default=1, help="Number of cores to use when calculating probabilities")
+p.add_argument("--haplotype", type=int, default=0, help="If set to 1 or 2, VCFs are assumed to be phased and the output will reflect only the first or second haplotypes in the VCF")
+p.add_argument("--cores", type=int, default=1, help="Number of cores to use when calculating probabilities")
 args = p.parse_args()
 
 make_qtl_inputs(args)
